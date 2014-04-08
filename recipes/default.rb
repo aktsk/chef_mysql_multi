@@ -15,7 +15,7 @@ directory "/var/log/mysql/binlog" do
   action :create
 end
 
-node['mysql_multi'].each.with_index do |conf|
+node['mysql_multi']['instances'].each.with_index do |conf|
   mysql_service node['mysql']['service_name'] do
     data_dir "/var/lib/#{conf['base']}"
     not_if { File.exists?("/var/lib/#{conf['base']}") }
@@ -28,20 +28,23 @@ end
 
 ruby_block "remove-mysqld_multi-in-my-cnf" do
   block do
-    text = File.read(my_cnf)
-    File.write(my_cnf, text.gsub(/^\[mysqld_multi\].*?(\[|\Z)/m, '\1'))
+    text = File.read('/etc/my.cnf')
+    File.write('/etc/my.cnf', text.gsub(/\n*\[mysqld_multi\].*?(\[|\Z)/m, '%s\1' % ["\n"]))
   end
 end
 
 execute 'append-mysql_multi-to-my-cnf' do
-  cmd = "cat /tmp/my_cnf_mysqld_multi >> #{my_cnf} && rm /tmp/my_cnf_mysqld_multi"
-  command cmd
+  command "cat /tmp/my_cnf_mysqld_multi >> #{my_cnf}; rm /tmp/my_cnf_mysqld_multi"
   action :run
 end
 
-node['mysql_multi'].each.with_index do |conf, index|
-  text = File.read(my_cnf)
-  File.write(my_cnf, text.gsub(/^\[#{conf['service']}\].*?(\[|\Z)/m, '\1'))
+node['mysql_multi']['instances'].each do |conf|
+  ruby_block "remove-mysqld_service-in-my-cnf" do
+    block do
+      text = File.read('/etc/my.cnf')
+      File.write('/etc/my.cnf', text.gsub(/\n*\[#{conf['service']}\].*?(\[|\Z)/m, '%s\1' % ["\n"]))
+    end
+  end
 
   template "/tmp/mysql-multi-instance.cnf" do
     variables(
@@ -54,8 +57,7 @@ node['mysql_multi'].each.with_index do |conf, index|
   end
 
   execute 'append-mysql_multi_instance-to-my-cnf' do
-    cmd = "cat /tmp/mysql-multi-instance.cnf >> #{my_cnf} && rm /tmp/mysql-multi-instance.cnf"
-    command cmd
+    command "cat /tmp/mysql-multi-instance.cnf >> #{my_cnf}; rm /tmp/mysql-multi-instance.cnf"
     action :run
   end
 end

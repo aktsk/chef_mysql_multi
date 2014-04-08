@@ -17,20 +17,23 @@ Usage
 
 ```json
 {
-  "mysql_multi": [
-    {
-      "base": "mysql1",
-      "service": "mysqld1",
-      "port": "3306",
-      "server_id": "1"
-    },
-    {
-      "base": "mysql2",
-      "service": "mysqld2",
-      "port": "3307",
-      "server_id": "2"
-    }
-  ],
+  "mysql_multi": {
+    "password": "supersecretpassword",
+    "instances": [
+      {
+        "base": "mysql1",
+        "service": "mysqld1",
+        "port": "3306",
+        "server_id": "2"
+      },
+      {
+        "base": "mysql2",
+        "service": "mysqld2",
+        "port": "3307",
+        "server_id": "3"
+      }
+    ]
+  }
 }
 ```
 
