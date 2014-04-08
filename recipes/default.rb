@@ -16,11 +16,9 @@ directory "/var/log/mysql/binlog" do
 end
 
 node['mysql_multi'].each.with_index do |conf|
-  base = conf['base']
-
   mysql_service node['mysql']['service_name'] do
-    data_dir "/var/lib/#{base}"
-    not_if { File.exists?("/var/lib/#{base}") }
+    data_dir "/var/lib/#{conf['base']}"
+    not_if { File.exists?("/var/lib/#{conf['base']}") }
   end
 end
 
@@ -42,19 +40,18 @@ execute 'append-mysql_multi-to-my-cnf' do
 end
 
 node['mysql_multi'].each.with_index do |conf, index|
-  base = conf['base']
+  text = File.read(my_cnf)
+  File.write(my_cnf, text.gsub(/^\[#{conf['service']}\].*?(\[|\Z)/m, '\1'))
+
   template "/tmp/mysql-multi-instance.cnf" do
     variables(
-      :base => base,
+      :base => conf['base'],
       :service => conf['service'],
       :port => conf['port'],
       :server_id => conf['server_id'],
     )
     source "mysql-multi-instance.cnf.erb"
   end
-
-  text = File.read(my_cnf)
-  File.write(my_cnf, text.gsub(/^\[#{base}\].*?(\[|\Z)/m, '\1'))
 
   execute 'append-mysql_multi_instance-to-my-cnf' do
     cmd = "cat /tmp/mysql-multi-instance.cnf >> #{my_cnf} && rm /tmp/mysql-multi-instance.cnf"
