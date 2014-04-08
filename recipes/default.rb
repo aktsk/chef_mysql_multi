@@ -48,7 +48,7 @@ node['mysql_multi'].each.with_index do |conf, index|
       :base => base,
       :service => conf['service'],
       :port => conf['port'],
-      :server_id => index,
+      :server_id => conf['server_id'],
     )
     source "mysql-multi-instance.cnf.erb"
   end

@@ -21,12 +21,14 @@ Usage
     {
       "base": "mysql1",
       "service": "mysqld1",
-      "port": "3306"
+      "port": "3306",
+      "server_id": "1"
     },
     {
       "base": "mysql2",
       "service": "mysqld2",
-      "port": "3307"
+      "port": "3307",
+      "server_id": "2"
     }
   ],
 }
