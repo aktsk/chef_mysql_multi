@@ -1,0 +1,42 @@
+
+[<%= @service %>]
+port = <%= @port %>
+
+# File Location
+datadir           = <%= "/var/lib/#{@base}" %>
+pid-file          = <%= "/var/lib/#{@base}/mysql.pid" %>
+log_bin           = <%= "/var/log/mysql/binlog/#{@base}-bin" %>
+log_error         = <%= "/var/log/mysql/#{@base}-error.log" %>
+general_log_file  = <%= "/var/log/mysql/#{@base}-general.log" %>
+socket            = <%= "/var/lib/#{@base}/mysql.sock" %>
+
+# InnoDB
+innodb_buffer_pool_dump_at_shutdown = ON
+innodb_buffer_pool_load_at_startup  = ON
+innodb_buffer_pool_size             = 1092M
+innodb_log_file_size                = 128M
+
+# Binary Log
+binlog_format             = MIXED
+log_slave_updates         = ON
+master_info_repository    = TABLE
+max_binlog_size           = 128M
+relay_log_info_repository = TABLE
+relay_log_recovery        = ON
+server_id                 = <%= @server_id %>
+sync_binlog               = 1
+
+# Slow Query Log
+log_output                    = TABLE
+log_queries_not_using_indexes = ON
+long_query_time               = 1.0
+slow_query_log                = ON
+
+# Connection Management
+table_open_cache_instances = 16
+
+# SQL Behavior
+character_set_server            = utf8mb4
+collation_server                = utf8mb4_general_ci
+explicit_defaults_for_timestamp = ON
+sql_mode                        = NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
