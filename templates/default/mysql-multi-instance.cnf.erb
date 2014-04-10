@@ -19,11 +19,9 @@ innodb_log_file_size                = 128M
 # Binary Log
 binlog_format             = MIXED
 log_slave_updates         = ON
-master_info_repository    = TABLE
 max_binlog_size           = 128M
-relay_log_info_repository = TABLE
 relay_log_recovery        = ON
-server_id                 = <%= @server_id %>
+server-id                 = <%= @server_id %>
 sync_binlog               = 1
 
 # Slow Query Log
