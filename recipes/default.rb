@@ -1,19 +1,5 @@
 my_cnf = '/etc/my.cnf'
 
-directory "/var/log/mysql" do
-  owner "mysql"
-  group "mysql"
-  mode 00755
-  action :create
-end
-
-directory "/var/log/mysql/binlog" do
-  owner "mysql"
-  group "mysql"
-  mode 00750
-  action :create
-end
-
 node['mysql_multi']['instances'].each.with_index do |conf|
   mysql_service node['mysql']['service_name'] do
     data_dir "/var/lib/#{conf['base']}"
@@ -59,6 +45,20 @@ node['mysql_multi']['instances'].each do |conf|
     command "cat /tmp/mysql-multi-instance.cnf >> #{my_cnf}; rm /tmp/mysql-multi-instance.cnf"
     action :run
   end
+end
+
+directory "/var/log/mysql" do
+  owner "mysql"
+  group "mysql"
+  mode 00755
+  action :create
+end
+
+directory "/var/log/mysql/binlog" do
+  owner "mysql"
+  group "mysql"
+  mode 00750
+  action :create
 end
 
 service 'mysqld' do
