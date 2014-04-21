@@ -69,3 +69,34 @@ execute 'start-mysqld-multi-instances' do
   command "mysqld_multi start"
   action :run
 end
+
+node['mysql_multi']['instances'].each do |conf|
+  socket_file = "/var/lib/#{conf['base']}/mysql.sock"
+
+  execute 'wait for mysql' do
+    command "until [ -S #{socket_file} ] ; do sleep 1 ; done"
+    timeout 10
+    action :run
+  end
+
+  if node['mysql']['server_root_password'].empty?
+    pass_string = ''
+  else
+    pass_string = "-p#{node['mysql']['server_root_password']}"
+  end
+
+  execute 'install-grants' do
+    cmd = "mysql -S #{socket_file} -u root "
+    cmd << "#{pass_string} < /etc/mysql_grants.sql"
+    command cmd
+    action :nothing
+  end
+
+  execute 'assign-root-password' do
+    cmd = "mysqladmin -S #{socket_file} -u root password "
+    cmd << node['mysql']['server_root_password']
+    command cmd
+    action :run
+    only_if "mysql -S #{socket_file} -u root -e 'show databases;'"
+  end
+end
