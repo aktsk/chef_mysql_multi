@@ -1,5 +1,4 @@
 my_cnf = '/etc/my.cnf'
-return unless File.exists?(my_cnf)
 
 directory "/var/log/mysql" do
   owner "mysql"
