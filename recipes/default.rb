@@ -75,7 +75,7 @@ node['mysql_multi']['instances'].each do |conf|
 
   execute 'wait for mysql' do
     command "until [ -S #{socket_file} ] ; do sleep 1 ; done"
-    timeout 10
+    timeout 20
     action :run
   end
 
